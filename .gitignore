@@ -3,3 +3,10 @@
 ################################################################################
 
 /.vs
+/prompt.active/obj
+/prompt.active.Demo/bin/Debug/netcoreapp2.1
+/prompt.active.Demo/obj
+/prompt.active.Core/bin/Debug/netstandard2.0
+/prompt.active.Core/obj/Debug/netstandard2.0
+/prompt.active.Core/obj/Release/netstandard2.0
+/prompt.active.Core/obj
