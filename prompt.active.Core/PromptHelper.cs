@@ -40,11 +40,11 @@ namespace prompt.active.Core
 
             // for input
             Console.ForegroundColor = PromptActive.Theme.PromptColor;
-            Console.Write($"{Environment.NewLine}{yourPrompt}");
+            Console.Write($"{Environment.NewLine}{yourPrompt} ");
             var input = new List<char>();
             var inputPosition = 0;
 
-            CurLeft = Console.CursorLeft + yourPrompt.Length;
+            CurLeft = Console.CursorLeft;
             CurTop = Console.CursorTop;
             int startLeft = CurLeft;
 
@@ -143,31 +143,39 @@ namespace prompt.active.Core
                         break;
                     case ConsoleKey.Tab:
                         {
-                            args = string.Concat(input).Trim().Split(' ').ToList();
+                            args = string.Concat(input).TrimStart().Split(' ').ToList();
                             argOrder = args.Count - 1;
                             cmd = argOrder == 0 ? "" : args[0];
 
                             // autocomplete
                             if (lastKey.Key != ConsoleKey.Tab)
                             {
-                                var thisCompleteList = yourApp.AutoCompleteList[cmd][argOrder];
-                                completeTarget = args[argOrder];
-                                matchedList = GetMatch(thisCompleteList, completeTarget).GetEnumerator();
+                                if (yourApp.AutoCompleteList.ContainsKey(cmd)
+                                    && yourApp.AutoCompleteList[cmd].ContainsKey(argOrder))
+                                {
+                                    var thisCompleteList = yourApp.AutoCompleteList[cmd][argOrder];
+                                    completeTarget = args[argOrder];
+                                    matchedList = GetMatch(thisCompleteList, completeTarget).GetEnumerator();
+                                }
+                                else matchedList = null;
                             }
 
-                            matchedList.MoveNext();
-                            while (string.IsNullOrEmpty(matchedList.Current))
-                            {
-                                matchedList.MoveNext();
-                            }
-
-                            var before = cmd;
+                            var before = "";
                             for (int i = 0; i < args.Count - 1; i++)
                             {
-                                before = $"{before} {args[i]}";
+                                before = $"{before}{args[i]} ";
                             }
 
-                            input = $"{before}{matchedList.Current}".ToCharArray().ToList();
+                            if (matchedList != null)
+                            {
+                                matchedList.MoveNext();
+                                while (string.IsNullOrEmpty(matchedList.Current))
+                                {
+                                    matchedList.MoveNext();
+                                }
+                                input = $"{before}{matchedList.Current}".ToCharArray().ToList();
+                            }
+
                             inputPosition = input.Count;
                             CurLeft = startLeft + inputPosition;
 
@@ -255,7 +263,7 @@ namespace prompt.active.Core
                 {
                     yield return list[i];
                 }
-                if (i == list.Count - 1) i = 0;
+                if (i == list.Count - 1) i = -1;
             }
         }
     }

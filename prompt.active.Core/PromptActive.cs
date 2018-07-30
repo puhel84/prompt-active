@@ -64,7 +64,15 @@ namespace prompt.active.Core
                         var (cmd, args) = PromptHelper.Run(yourPrompt, yourApp);
                         // Delegate
                         var param = new List<object>();
-                        if (!yourApp.CommandList.ContainsKey(cmd)) continue;
+                        // just enter
+                        if (string.IsNullOrWhiteSpace(cmd)) continue;
+                        // unknown
+                        if (!yourApp.CommandList.ContainsKey(cmd))
+                        {
+                            Console.ForegroundColor = Theme.ErrorColor;
+                            Console.Write(" : Unknown command. (It's case sensitivity.)");
+                            continue;
+                        }
                         var action = yourApp.CommandList[cmd];
                         // validation
                         var actionParms = action.GetParameters();
@@ -83,10 +91,10 @@ namespace prompt.active.Core
                                 }
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             Console.ForegroundColor = Theme.ErrorColor;
-                            Console.Write(" Wrong command.");
+                            Console.Write(" : Wrong input parameter. (It's case sensitivity.)");
                             continue;
                         }
                         action.Invoke(yourApp, param.ToArray());
@@ -159,7 +167,7 @@ namespace prompt.active.Core
                             // Autocomplete add
                             var enumNames = type.GetEnumNames().ToList();
                             if (!yourApp.AutoCompleteList.ContainsKey(item.Key)) yourApp.AutoCompleteList.Add(item.Key, new Dictionary<int, List<string>>());
-                            yourApp.AutoCompleteList[item.Key][i] = enumNames;
+                            yourApp.AutoCompleteList[item.Key][i + 1] = enumNames;
 
                             foreach (var e in enumNames)
                             {
